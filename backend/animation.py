@@ -7,17 +7,18 @@ from pygltflib import (
     SCALAR, 
     VEC4, 
     AnimationSampler, 
-    LINEAR, 
     AnimationChannel,
     AnimationChannelTarget,
     ROTATION,
     Animation,
 )
 
-from pygltflib.validator import validate, summary
 import numpy as np
 
 gltf = GLTF2().load('model.glb')
+
+for i, node in enumerate(gltf.nodes):
+    print(node.name + " " + str(i))
 
 times = np.array([0.0, 1.0, 2.0], dtype=np.float32)
 
@@ -39,7 +40,7 @@ offset = len(buffer)
 buffer = buffer + animation_data
 
 gltf.set_binary_blob(buffer)
-gltf.buffers[0].byteLength = offset
+gltf.buffers[0].byteLength = len(buffer)
 
 # Creating buffer views
 time_bv_index = len(gltf.bufferViews)
@@ -100,4 +101,4 @@ animation = Animation(
 
 gltf.animations.append(animation)
 
-gltf.save("test.glb")
+# gltf.save("test.glb")
