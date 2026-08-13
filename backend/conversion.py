@@ -127,7 +127,7 @@ channels = []
 # animate each joint
 for i in range(52):
 
-    # extracting rotation data from each frame and converting from axis angle to quartenion form
+    # extracting rotation data from each frame and converting from axis angle to quaternion form
     rotations = []
     for frame in frames:
         theta = math.sqrt(frame[START_INDICES[i]]**2 + frame[START_INDICES[i]+1]**2 + frame[START_INDICES[i]+2]**2)
