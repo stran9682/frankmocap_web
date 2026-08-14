@@ -1,8 +1,14 @@
 import os
+import shutil
 import uuid
-from flask import Flask, abort, request, send_file
-from flask_cors import CORS
+import tempfile
+import asyncio
+from concurrent.futures import ProcessPoolExecutor
 from werkzeug.utils import secure_filename
+from fastapi import FastAPI, UploadFile, HTTPException, status
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.background import BackgroundTasks
 
 import cv2
 import torch
@@ -31,7 +37,7 @@ from pygltflib import (
 )
 
 UPLOAD_FOLDER = 'temp'
-ALLOWED_EXTENSIONS = {'mp4'}
+ALLOWED_EXTENSIONS = {'mp4', 'MP4'}
 
 START_INDICES = [
 	30,21,12,3,
@@ -52,38 +58,61 @@ START_INDICES = [
 	27,18,9,0,
 ]
 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-CORS(app)
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_headers=["*"],
+    allow_methods=["*"]
+)
 
-@app.route("/", methods=['POST'])
-def mocap():
+@app.post("/")
+async def mocap(uploaded_file: UploadFile, bg_tasks: BackgroundTasks):
+    if not uploaded_file or not allowed_file(uploaded_file.filename):
+        raise HTTPException(
+           status_code=status.HTTP_400_BAD_REQUEST,
+           detail="Incorrect File Type, only .mp4 supported"
+        )
 
-    if 'file' not in request.files:
-      abort(400)
+    filename = secure_filename(uploaded_file.filename)
 
-    file = request.files['file']
+    tmp_dir = tempfile.mkdtemp()
 
-    if not file or not allowed_file(file.filename):
-       abort(400)
+    try:
+        file_path = os.path.join(tmp_dir, filename)
 
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
+        with open(file_path, "wb+") as file_object:
+            file_object.write(await uploaded_file.read())
 
-    frames = run_frankmocap(file_path)
-    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    glb_path = generate_glb(frames, output_dir= app.config['UPLOAD_FOLDER'])
+        loop = asyncio.get_event_loop()
 
-    # Stream file back
-    send_file(glb_path, as_attachment=True)
-    
+        with ProcessPoolExecutor() as pool:
+            frames = await loop.run_in_executor(pool, run_frankmocap, file_path)
+
+        glb_path = generate_glb(frames, output_dir= tmp_dir)
+
+        bg_tasks.add_task(shutil.rmtree, tmp_dir)
+
+        # Stream file back
+        return FileResponse(
+            path=glb_path,
+            background=bg_tasks
+        )
+
+    except Exception as e:
+        shutil.rmtree(tmp_dir)
+        raise e
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def generate_glb(frames, output_dir):
-    glb = GLTF2().load('model.glb')
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(base_dir, "model.glb")
+
+    glb = GLTF2().load(model_path)
 
     buffer = glb.binary_blob()
     offset = len(buffer)
