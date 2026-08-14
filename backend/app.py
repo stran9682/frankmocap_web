@@ -5,7 +5,7 @@ import tempfile
 import asyncio
 from concurrent.futures import ProcessPoolExecutor
 from werkzeug.utils import secure_filename
-from fastapi import FastAPI, UploadFile, HTTPException, status
+from fastapi import FastAPI, File, UploadFile, HTTPException, status
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.background import BackgroundTasks
@@ -68,7 +68,7 @@ app.add_middleware(
 )
 
 @app.post("/")
-async def mocap(uploaded_file: UploadFile, bg_tasks: BackgroundTasks):
+async def mocap(bg_tasks: BackgroundTasks, uploaded_file: UploadFile = File(...),):
     if not uploaded_file or not allowed_file(uploaded_file.filename):
         raise HTTPException(
            status_code=status.HTTP_400_BAD_REQUEST,
