@@ -1,6 +1,8 @@
 import { Canvas } from '@react-three/fiber'
 import { useGLTF, OrbitControls, useAnimations } from '@react-three/drei'
 import { Suspense, useEffect, useState, type ChangeEvent } from 'react'
+import './global.css'
+import './app.css'
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -68,7 +70,7 @@ function App() {
   }
 
   return (
-    <>
+    <div className='app space-mono-regular'>
       <input type="file" accept=".gltf, .glb, .mp4" onChange={handleFileChange}/>
 
       <button disabled={file === null || isLoading} onClick={handleUpload}>
@@ -79,17 +81,17 @@ function App() {
           <Suspense>
             <Canvas>
               <ambientLight/>
-              <pointLight position={[1, 1, 0]} intensity={10} />
+              <pointLight position={[0, 2, 2]} intensity={10} />
               <Model url={modelUrl}/>
               <OrbitControls enablePan={true}/>
             </Canvas>
           </Suspense>
         :
         <div>
-          <h1>{isLoading ? "Loading" : "Upload .mp4 or glb"}</h1>
+          <h2>{isLoading ? "Loading" : "Upload .mp4 or .glb"}</h2>
         </div>
       }
-    </>
+    </div>
   )
 }
 

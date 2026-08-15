@@ -267,11 +267,9 @@ def run_frankmocap(file_path):
 
         pred_output = extract_output(pred_output_list)
 
-        print(pred_output['pred_left_hand_pose'][0])
-
+        # TODO: Check if floats are being truncated
         output_list = np.concatenate([
-            pred_output['pred_body_pose'][0][:3],
-            pred_output['pred_body_pose'][0][3:66],
+            pred_output['pred_body_pose'][0][:66],
             pred_output['pred_left_hand_pose'][0],
             pred_output['pred_right_hand_pose'][0]
         ])
