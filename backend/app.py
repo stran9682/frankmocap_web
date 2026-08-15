@@ -267,6 +267,8 @@ def run_frankmocap(file_path):
 
         pred_output = extract_output(pred_output_list)
 
+        print(pred_output['pred_left_hand_pose'][0])
+
         output_list = np.concatenate([
             pred_output['pred_body_pose'][0][:3],
             pred_output['pred_body_pose'][0][3:66],

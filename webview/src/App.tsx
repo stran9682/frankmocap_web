@@ -1,12 +1,19 @@
 import { Canvas } from '@react-three/fiber'
-import { useGLTF, OrbitControls } from '@react-three/drei'
-import { Suspense, useState, type ChangeEvent } from 'react'
+import { useGLTF, OrbitControls, useAnimations } from '@react-three/drei'
+import { Suspense, useEffect, useState, type ChangeEvent } from 'react'
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function Model ({url}:{url: string}){
   const gltf = useGLTF(url)
-  return (<primitive object={gltf.scene} scale={80}/>)
+  
+  const modelAnimations = useAnimations(gltf.animations, gltf.scene)
+  
+  useEffect(() => {
+    modelAnimations.actions[modelAnimations.names[0]]?.play()
+  }, [])
+
+  return (<primitive object={gltf.scene} scale={[-2, 2, 2]}/>)
 }
 
 function App() {
@@ -79,7 +86,7 @@ function App() {
           </Suspense>
         :
         <div>
-          <h1>{isLoading ? "One second" : "Upload .mp4 or glb"}</h1>
+          <h1>{isLoading ? "Loading" : "Upload .mp4 or glb"}</h1>
         </div>
       }
     </>

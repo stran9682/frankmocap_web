@@ -91,7 +91,7 @@ START_INDICES = [
 fm_data = np.load("animation.npz")
 frames = fm_data['poses']
 
-glb = GLTF2().load('model.glb')
+glb = GLTF2().load('../model.glb')
 
 buffer = glb.binary_blob()
 offset = len(buffer)
