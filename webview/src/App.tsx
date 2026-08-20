@@ -15,7 +15,7 @@ function Model ({url}:{url: string}){
     modelAnimations.actions[modelAnimations.names[0]]?.play()
   }, [])
 
-  return (<primitive object={gltf.scene} scale={[-2, 2, 2]}/>)
+  return (<primitive object={gltf.scene} scale={[2, 2, 2]}/>)
 }
 
 function App() {
