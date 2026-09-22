@@ -1,32 +1,65 @@
+/* ---- Fonts ---- */
 .space-mono-regular {
-    font-family: "Space Mono", monospace;
+    font-family: "Space Mono", ui-monospace, monospace;
     font-weight: 400;
     font-style: normal;
-    font-size: 15pt;
+    font-size: 15px;
 }
 
 .dm-sans-regular {
-    font-family: "DM Sans", sans-serif;
+    font-family: "DM Sans", system-ui, sans-serif;
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
 }
 
 .titles {
-    font-family: "Bodoni Moda", serif;
+    font-family: "Bodoni Moda", Georgia, serif;
     font-optical-sizing: auto;
     font-weight: 600;
     font-style: normal;
     line-height: 1;
 }
 
+/* ---- Base ---- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 h1 {
     margin: 0;
-    font-size: 3em;
-    line-height: 0.8;		
+    font-size: 2.25rem;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
 }
 
 h2 {
     margin: 0;
-    font-size: 1.5em;
+    font-size: 1.25rem;
+    line-height: 1.3;
+}
+
+button {
+    font-family: inherit;
+}
+
+code {
+    font-family: "Space Mono", ui-monospace, monospace;
 }
